@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Responsive Starfield Background</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+    canvas {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+    .content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 1;
+      padding: 20px;
+    }
+    .content h1 {
+      font-size: 4vw;
+      margin: 0;
+    }
+    .content p {
+      font-size: 1.5vw;
+      margin: 10px 0 0;
+    }
+    @media (max-width: 768px) {
+      .content h1 {
+        font-size: 6vw;
+      }
+      .content p {
+        font-size: 3vw;
+      }
+    }
+    @media (max-width: 480px) {
+      .content h1 {
+        font-size: 8vw;
+      }
+      .content p {
+        font-size: 4vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <h1>Welcome to My Website</h1>
+    <p>Enjoy the 3D animated background</p>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+  <script>
+    // Initialize Three.js scene
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Create stars
+    const starCount = 1000;
+    const stars = new THREE.BufferGeometry();
+    const starVertices = [];
+
+    for (let i = 0; i < starCount; i++) {
+      const x = (Math.random() - 0.5) * 2000;
+      const y = (Math.random() - 0.5) * 2000;
+      const z = (Math.random() - 0.5) * 2000;
+      starVertices.push(x, y, z);
+    }
+
+    stars.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+
+    const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 1 });
+
+    const starField = new THREE.Points(stars, starMaterial);
+    scene.add(starField);
+
+    // Animation
+    camera.position.z = 1;
+
+    const animateStars = () => {
+      starField.rotation.y += 0.001;
+      starField.geometry.attributes.position.array.forEach((value, index) => {
+        if (index % 3 === 2) {
+          if (starField.geometry.attributes.position.array[index] < -1000) {
+            starField.geometry.attributes.position.array[index] = 1000;
+          }
+          starField.geometry.attributes.position.array[index] -= 2;
+        }
+      });
+      starField.geometry.attributes.position.needsUpdate = true;
+    };
+
+    const animate = () => {
+      requestAnimationFrame(animate);
+      animateStars();
+      renderer.render(scene, camera);
+    };
+
+    animate();
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
